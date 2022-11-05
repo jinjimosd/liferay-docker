@@ -87,12 +87,11 @@ function download {
 
 	if [[ "${file_url}" != http*://* ]]
 	then
-		file_url="http://${file_url}"
+		file_url="https://${file_url}"
 	fi
-
 	if [[ "${file_url}" != http://mirrors.*.liferay.com* ]] &&
 	   [[ "${file_url}" != http://release-1* ]] &&
-	   [[ "${file_url}" != https://release.liferay.com* ]]
+	   [[ "${file_url}" != https://releases.liferay.com* ]]
 	then
 		if [ ! -n "${LIFERAY_DOCKER_MIRROR}" ]
 		then

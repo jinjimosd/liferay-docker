@@ -1,9 +1,10 @@
-FROM --platform=${TARGETPLATFORM} liferay/jdk11:latest AS liferay-jdk11
+FROM --platform=${TARGETPLATFORM} jinjimosd/liferay-jdk11:latest AS liferay-jdk11
 
 RUN apt-get update && \
 	apt-get install --no-install-recommends --yes ffmpeg fonts-dejavu ghostscript imagemagick gifsicle libtcnative-1 && \
 	apt-get upgrade --yes && \
-	apt-get clean
+	apt-get clean && \
+	apt-get autoremove -y
 
 FROM liferay-jdk11
 

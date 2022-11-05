@@ -3,8 +3,7 @@
 source ./_common.sh
 
 function check_usage {
-	if [ ! -n "${LIFERAY_DOCKER_IMAGE_ID}" ]
-	then
+	if [ ! -n "${LIFERAY_DOCKER_IMAGE_ID}" ]; then
 		echo "Usage: ${0}"
 		echo ""
 		echo "The script reads the following environment variables:"
@@ -23,8 +22,7 @@ function check_usage {
 }
 
 function clean_up_test_directory {
-	if [ "${TEST_RESULT}" -eq 0 ]
-	then
+	if [[ "${TEST_RESULT}" -eq 0 ]]; then
 		rm -fr "${TEST_DIR}"
 	fi
 }
@@ -32,8 +30,7 @@ function clean_up_test_directory {
 function log_test_failure {
 	TEST_RESULT=1
 
-	if [ -n "${1}" ]
-	then
+	if [ -n "${1}" ]; then
 		echo "[${1}] FAILED"
 	else
 		echo "[${FUNCNAME[1]}] FAILED"
@@ -41,8 +38,7 @@ function log_test_failure {
 }
 
 function log_test_success {
-	if [ -n "${1}" ]
-	then
+	if [ -n "${1}" ]; then
 		echo "[${1}] SUCCESS"
 	else
 		echo "[${FUNCNAME[1]}] SUCCESS"
@@ -81,15 +77,13 @@ function prepare_mount {
 
 	mkdir -p "${TEST_DIR}/mnt/liferay/patching"
 
-	if [ -n "${LIFERAY_DOCKER_TEST_PATCHING_TOOL_URL}" ]
-	then
+	if [ -n "${LIFERAY_DOCKER_TEST_PATCHING_TOOL_URL}" ]; then
 		local patching_tool_file_name=${LIFERAY_DOCKER_TEST_PATCHING_TOOL_URL##*/}
 
 		download "downloads/patching-tool/${patching_tool_file_name}" "${LIFERAY_DOCKER_TEST_PATCHING_TOOL_URL}"
 	fi
 
-	if [ -n "${LIFERAY_DOCKER_TEST_HOTFIX_URL}" ]
-	then
+	if [ -n "${LIFERAY_DOCKER_TEST_HOTFIX_URL}" ]; then
 		local hotfix_file_name=${LIFERAY_DOCKER_TEST_HOTFIX_URL##*/}
 
 		download "downloads/hotfix/${hotfix_file_name}" "${LIFERAY_DOCKER_TEST_HOTFIX_URL}"
@@ -97,15 +91,13 @@ function prepare_mount {
 		cp "downloads/hotfix/${hotfix_file_name}" "${TEST_DIR}/mnt/liferay/patching"
 	fi
 
-	if [ -n "${LIFERAY_DOCKER_TEST_PATCHING_TOOL_VERSION}" ]
-	then
+	if [ -n "${LIFERAY_DOCKER_TEST_PATCHING_TOOL_VERSION}" ]; then
 		download "downloads/patching-tool/patching-tool-${LIFERAY_DOCKER_TEST_PATCHING_TOOL_VERSION}.zip" "files.liferay.com/private/ee/fix-packs/patching-tool/patching-tool-${LIFERAY_DOCKER_TEST_PATCHING_TOOL_VERSION}.zip"
 
 		cp "downloads/patching-tool/patching-tool-${LIFERAY_DOCKER_TEST_PATCHING_TOOL_VERSION}.zip" "${TEST_DIR}/mnt/liferay/patching/"
 	fi
 
-	if [ -e "${TEST_DIR}/mnt/liferay/scripts" ]
-	then
+	if [ -e "${TEST_DIR}/mnt/liferay/scripts" ]; then
 		chmod -R +x "${TEST_DIR}/mnt/liferay/scripts"
 	fi
 }
@@ -125,8 +117,8 @@ function start_container {
 function stop_container {
 	echo "Stopping container."
 
-	docker kill "${CONTAINER_ID}" > /dev/null
-	docker rm "${CONTAINER_ID}" > /dev/null
+	docker kill "${CONTAINER_ID}" >/dev/null
+	docker rm "${CONTAINER_ID}" >/dev/null
 }
 
 function test_docker_image_files {
@@ -134,15 +126,13 @@ function test_docker_image_files {
 }
 
 function test_docker_image_fix_pack_installed {
-	if [ -n "${LIFERAY_DOCKER_TEST_INSTALLED_PATCHES}" ]
-	then
+	if [ -n "${LIFERAY_DOCKER_TEST_INSTALLED_PATCHES}" ]; then
 		local correct_fix_pack=$(echo "${LIFERAY_DOCKER_TEST_INSTALLED_PATCHES}" | tr -d '[:space:]')
 		local output=$(docker exec -it "${CONTAINER_ID}" /opt/liferay/patching-tool/patching-tool.sh info | grep "Currently installed patches:")
 
 		local installed_fix_pack=$(echo "${output##*: }" | tr -d '[:space:]')
 
-		if [ "${correct_fix_pack}" == "${installed_fix_pack}" ]
-		then
+		if [ "${correct_fix_pack}" == "${installed_fix_pack}" ]; then
 			log_test_success
 		else
 			log_test_failure
@@ -155,19 +145,16 @@ function test_docker_image_fix_pack_installed {
 }
 
 function test_docker_image_hotfix_installed {
-	if [ -n "${LIFERAY_DOCKER_TEST_HOTFIX_URL}" ]
-	then
+	if [ -n "${LIFERAY_DOCKER_TEST_HOTFIX_URL}" ]; then
 		test_page "http://localhost:${CONTAINER_PORT_HTTP}/" "Hotfix installation on the Docker image was successful."
 	fi
 }
 
 function test_docker_image_patching_tool_updated {
-	if [ -n "${LIFERAY_DOCKER_TEST_PATCHING_TOOL_VERSION}" ]
-	then
+	if [ -n "${LIFERAY_DOCKER_TEST_PATCHING_TOOL_VERSION}" ]; then
 		local output=$(docker logs --details "${CONTAINER_ID}" 2>/dev/null)
 
-		if [[ "${output}" =~ .*"Patching Tool updated successfully".* ]]
-		then
+		if [[ "${output}" =~ .*"Patching Tool updated successfully".* ]]; then
 			log_test_success
 		else
 			log_test_failure
@@ -188,16 +175,14 @@ function test_docker_image_scripts_2 {
 function test_health_status {
 	echo -en "Waiting for health status"
 
-	for counter in {1..200}
-	do
+	for counter in {1..200}; do
 		echo -en "."
 
 		local health_status=$(docker inspect --format="{{json .State.Health.Status}}" "${CONTAINER_ID}")
-		local ignore_license=$(docker logs ${CONTAINER_ID} 2> /dev/null | grep -c "Starting Liferay Portal")
-		local license_status=$(docker logs ${CONTAINER_ID} 2> /dev/null | grep -c "License registered for DXP Development")
+		local ignore_license=$(docker logs ${CONTAINER_ID} 2>/dev/null | grep -c "Starting Liferay Portal")
+		local license_status=$(docker logs ${CONTAINER_ID} 2>/dev/null | grep -c "License registered for DXP Development")
 
-		if [ "${health_status}" == "\"healthy\"" ] && ([ ${ignore_license} -gt 0 ] || [ ${license_status} -gt 0 ])
-		then
+		if [ "${health_status}" == "\"healthy\"" ] && ([ ${ignore_license} -gt 0 ] || [ ${license_status} -gt 0 ]); then
 			echo ""
 
 			log_test_success
@@ -222,16 +207,14 @@ function test_page {
 
 	local exit_code=$?
 
-	if [ ${exit_code} -gt 0 ]
-	then
+	if [ ${exit_code} -gt 0 ]; then
 		log_test_failure "${FUNCNAME[1]}"
 
 		echo "${content}"
 		echo ""
 		echo "curl exit code is: ${exit_code}."
 	else
-		if [[ "${content}" =~ .*"${2}".* ]]
-		then
+		if [[ "${content}" =~ .*"${2}".* ]]; then
 			log_test_success "${FUNCNAME[1]}"
 		else
 			log_test_failure "${FUNCNAME[1]}"
