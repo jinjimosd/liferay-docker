@@ -40,7 +40,7 @@ RUN apt-get update && \
 	apt-get install --no-install-recommends --yes jattach && \
 	apt-get upgrade --yes && \
 	apt-get clean && \
-	curl -H 'accept: */*' -L -s -X 'GET' -o /tmp/jdk11.deb "https://cloud.dogoo.vn/index.php/s/B5NpootsbyWWZTt/download/jdk-11.0.16_linux-x64_bin.deb" && \
+	curl -H 'accept: */*' -L -s -X 'GET' -o /tmp/jdk11.deb "https://cloud.dogoo.vn/index.php/s/WfsD33YyjtaHN9n/download/jdk-11.0.16_linux-x64_bin.deb" && \
 	apt-get install --no-install-recommends --yes /tmp/jdk11.deb && \
 	rm /tmp/jdk11.deb && \
 	/usr/local/bin/set_java_version.sh

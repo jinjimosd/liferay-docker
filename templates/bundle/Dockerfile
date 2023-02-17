@@ -2,6 +2,10 @@ FROM --platform=${TARGETPLATFORM} jinjimosd/liferay-jdk11:latest AS liferay-jdk1
 
 RUN apt-get update && \
 	apt-get install --no-install-recommends --yes ffmpeg fonts-dejavu ghostscript imagemagick gifsicle libtcnative-1 && \
+	apt-get install software-properties-common -y && \
+	add-apt-repository ppa:alex-p/tesseract-ocr-devel -y && \
+	apt-get install tesseract-ocr -y && \
+	apt-get update -y && \
 	apt-get upgrade --yes && \
 	apt-get clean && \
 	apt-get autoremove -y
@@ -18,9 +22,12 @@ ARG LABEL_VCS_URL
 ARG LABEL_VERSION
 ARG TARGETPLATFORM
 
-COPY --chown=liferay:liferay liferay /opt/liferay/
-COPY resources/usr/local/bin/* /usr/local/bin/
 
+COPY --chown=liferay:liferay resources/tmp.jar /home/liferay/tmp.jar
+COPY --chown=liferay:liferay resources/bladelatest.jar /home/liferay/bladelatest.jar
+COPY --chown=liferay:liferay liferay /opt/liferay
+COPY resources/usr/local/bin /usr/local/bin
+COPY resources/usr/share/tesseract-ocr/5/tessdata /usr/share/tesseract-ocr/5/tessdata
 ENTRYPOINT ["tini", "--", "/usr/local/bin/liferay_entrypoint.sh"]
 
 ENV JPDA_ADDRESS=8000
@@ -68,3 +75,11 @@ RUN ln -fs /opt/liferay/* /home/liferay
 USER liferay:liferay
 
 WORKDIR /opt/liferay
+
+RUN JAVA_HOME=/usr/lib/jvm/${JAVA_VERSION} && \
+	PATH=/usr/lib/jvm/${JAVA_VERSION}/bin/:${PATH} && \
+	cd /home/liferay && \
+	java -jar tmp.jar -u init && \
+	rm -f tmp.jar && \
+	jpm/bin/jpm install -f bladelatest.jar && \
+	rm -f bladelatest.jar
