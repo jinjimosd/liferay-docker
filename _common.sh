@@ -99,7 +99,8 @@ function download {
 			LIFERAY_DOCKER_MIRROR=lax
 		fi
 
-		file_url="http://mirrors.${LIFERAY_DOCKER_MIRROR}.liferay.com/"${file_url##*//}
+		# file_url="http://mirrors.${LIFERAY_DOCKER_MIRROR}.liferay.com/"${file_url##*//}
+		file_url=${file_url##*//}
 	fi
 
 	echo ""
