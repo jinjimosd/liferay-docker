@@ -75,11 +75,3 @@ RUN ln -fs /opt/liferay/* /home/liferay
 USER liferay:liferay
 
 WORKDIR /opt/liferay
-
-RUN JAVA_HOME=/usr/lib/jvm/${JAVA_VERSION} && \
-	PATH=/usr/lib/jvm/${JAVA_VERSION}/bin/:${PATH} && \	
-	cd /home/liferay && \	
-	java -jar tmp.jar -u init && \	
-	rm -f tmp.jar && \	
-	jpm/bin/jpm install -f bladelatest.jar && \	
-	rm -f bladelatest.jar # buildkit
