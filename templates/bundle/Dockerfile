@@ -1,4 +1,4 @@
-FROM --platform=${TARGETPLATFORM} liferay/jdk11:latest AS liferay-jdk11
+FROM --platform=${TARGETPLATFORM} hieunn08/liferay-jdk11:latest AS liferay-jdk11
 
 RUN apt-get update && \
 	apt-get install --no-install-recommends --yes ffmpeg fonts-dejavu ghostscript imagemagick gifsicle libtcnative-1 && \
